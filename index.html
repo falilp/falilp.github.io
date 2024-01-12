@@ -1,23 +1,187 @@
-<h1 id="documentación-pipeline-gitlab">Documentación pipeline
-GitLab</h1>
-<h2 id="imagen">Imagen:</h2>
-<p>El pipeline utiliza la imagen de Python 3.9. Esto significa que todas
-las tareas se ejecutan en un entorno que tiene Python 3.9 instalado. ##
-Stages: Las etapas del pipeline son prepare, execute, create, insert y
-documentation. Cada etapa representa una fase distinta del proceso de
-CI/CD. ## Prepare: En esta etapa, el pipeline clona un repositorio de
-GitLab. El comando git clone se utiliza para copiar el repositorio
-completo desde GitLab al ambiente de ejecución del pipeline. ## Execute:
-Durante esta etapa, el pipeline instala dos paquetes de Python: pandas y
-matplotlib. Luego, ejecuta un script de Python llamado grafica.py.
-Finalmente, el pipeline lista todos los archivos en el directorio actual
-con el comando ls. Los artefactos generados por esta etapa, como el
-archivo grafico.png, se guardan para su uso en etapas posteriores. ##
-Create: En esta etapa, el pipeline lee el contenido de un archivo
-llamado documentacion.txt y lo añade al final de un archivo llamado
-README2.md. ## Insert: Durante esta etapa, el pipeline añade una línea
-al archivo README2.md que incrusta la imagen grafico.png. ##
-Documentation: Finalmente, en esta etapa, el pipeline instala la
-herramienta pandoc y la utiliza para convertir el archivo README2.md en
-un archivo HTML llamado documentation.html. <img src="./grafico.png"
-alt="My Image" /></p>
+<h1 id="ejercicio-3---gitlab-pipeline">Ejercicio 3 - GitLab
+Pipeline</h1>
+<h2 id="configuración-inicial">Configuración inicial</h2>
+<p>Se especifica la imagen de Docker que se utilizará para poder
+ejecutar el pipeline.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span><span class="kw">:</span><span class="at"> python:3.9 </span></span></code></pre></div>
+<h2 id="definición-de-stages">Definición de Stages</h2>
+<p>En esta sección se especificarán las estapas del pipeline, cada una
+agrupa un conjunto de tareas.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stages</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> prepare</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> execute</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  - publish</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> create</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> insert</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> documentation</span></span></code></pre></div>
+<h2 id="preparación">Preparación</h2>
+<p>Se clonará el repositorio de GitLab, para poder realizarlo debemos
+crear un token “<span class="math inline">$tokenGITLAB" para poder darle
+los privilegios y así poder realizar las operaciones. ```yaml
+prepare:  stage: prepare  script:  - git clone
+https://oauth2:$</span>tokenGITLAB@gitlab.com/vs9820852/vsGitLab.git</p>
+<pre><code>
+## Ejecucuión archivo Python
+Se deberá instalar las dependencias para poder ejecutar el programa &quot;grafica&quot; la cual convierte y genera los datos a un grafico denominado &quot;grafico.png&quot;, este archivo se conservará para etapas posteriores del pipeline en la sección de &quot;artifacts&quot;.
+```yaml
+execute:
+  stage: execute
+  script:
+    - pip install pandas matplotlib
+    - python grafica.py 
+  artifacts:
+    paths:
+      - grafico.png</code></pre>
+<h2 id="creación-readme">Creación README</h2>
+<p>Se concatenará el contenido de “documentacion.txt” con el archivo
+“README2” y como en el apartado anterior se conservará los archivos
+README2 y grafico.png para etapas posteriores del pipeline en la sección
+de “artifacts”.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">createReadme</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> create</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cat documentacion.txt &gt;&gt; README2.md</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">artifacts</span><span class="kw">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">paths</span><span class="kw">:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> README2.md</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> grafico.png</span></span></code></pre></div>
+<h2 id="insercción-de-la-imagen">Insercción de la imagen</h2>
+<p>Se insertará la imagen png en el archivo “README2” y como en el
+apartado anterior se conservará los archivos README2 y grafico.png para
+etapas posteriores del pipeline en la sección de “artifacts”.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">insertImage</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> insert</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> echo &#39;![My Image](./grafico.png)&#39; &gt;&gt; README2.md</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">artifacts</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">paths</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> README2.md</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> grafico.png</span></span></code></pre></div>
+<h2 id="crear-documentación">Crear Documentación</h2>
+<p>Esta etapa de documentación instala Pandoc, lo utiliza para convertir
+el contenido de “README2” a un archivo de documentación HTML, y conserva
+tanto el HTML generado como los archivos originales como artefactos para
+su almacenamiento.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">documentation</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> documentation</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> apt-get update </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> apt-get install -y pandoc</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> pip install pandoc</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> pandoc README2.md -o documentation.html</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">artifacts</span><span class="kw">:</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">paths</span><span class="kw">:</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> documentation.html</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> README2.md</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> grafico.png</span></span></code></pre></div>
+<h2 id="despliegue-en-github-pages">Despliegue en GitHub Pages</h2>
+<p>Este script es parte de un flujo de despliegue que parece actualizar
+un repositorio de GitHub con los archivos grafico.png y
+documentation.html desde un entorno de CI/CD en GitLab. El uso del token
+de GitHub (<span class="math inline">${GITHUB_TOKEN}) es clave para la
+autenticación en GitHub durante la operación de push. Además, la sección
+comentada al final (only: - main) indica que el despliegue solo se
+ejecutará cuando haya cambios en la rama main ```yaml deploy:  stage:
+deploy  script:  - apt-get update -qy  - git config --global user.email
+"falilealp@gmail.com"  - git config --global user.name "falilp"  - git
+clone https://falilp:$</span>{GITHUB_TOKEN}<span class="citation"
+data-cites="github.com/falilp/falilp.github.io.git">@github.com/falilp/falilp.github.io.git</span>
+- cd falilp.github.io - cp ../grafico.png ./grafico.png - cp
+../documentation.html ./index.html - git add –all - git commit -m
+“Deploy GitLab” - git push -u origin main # only: # - main</p>
+<pre><code>
+## Pipeline 
+```yaml
+image: python:3.9  # Utiliza la imagen de Python 3.9
+
+stages:
+  - prepare
+  - execute
+#  - publish
+  - create
+  - insert
+  - documentation
+  - deploy
+
+prepare:
+  stage: prepare
+  script:
+    - git clone https://oauth2:$tokenGITLAB@gitlab.com/vs9820852/vsGitLab.git  # Clona el repositorio
+
+execute:
+  stage: execute
+  script:
+    - pip install pandas matplotlib
+    - python grafica.py  # Ejecuta el script de transformación de datos
+  artifacts:
+    paths:
+      - grafico.png
+
+#publish:
+#  stage: publish
+#  script:
+#    - ls
+#    - &gt;
+#      curl -v -X POST -H &quot;Authorization: Bearer $FIGSHARE_API_TOKEN&quot; \
+#      -F &quot;files[]=grafico.png&quot; \
+#      https://api.figshare.com/v2/account/articles
+#    - pip install requests
+#    - python figshare.py
+
+createReadme:
+  stage: create
+  script:
+    - cat documentacion.txt &gt;&gt; README2.md
+  artifacts:
+    paths:
+      - README2.md
+      - grafico.png
+
+insertImage:
+  stage: insert
+  script:
+    - echo &#39;![My Image](./grafico.png)&#39; &gt;&gt; README2.md
+  artifacts:
+    paths:
+      - README2.md
+      - grafico.png
+
+documentation:
+  stage: documentation
+  script:
+    - apt-get update 
+    - apt-get install -y pandoc
+    - pip install pandoc
+    - pandoc README2.md -o documentation.html
+  artifacts:
+    paths:
+      - documentation.html
+      - README2.md
+      - grafico.png
+
+deploy:
+  stage: deploy
+  script:
+    - apt-get update -qy
+    - git config --global user.email &quot;falilealp@gmail.com&quot;
+    - git config --global user.name &quot;falilp&quot;
+    - git clone https://falilp:${GITHUB_TOKEN}@github.com/falilp/falilp.github.io.git
+    - cd falilp.github.io
+    - cp ../grafico.png ./grafico.png
+    - cp ../documentation.html ./index.html
+    - git add --all
+    - git commit -m &quot;Deploy GitLab&quot;
+    - git push -u origin main
+#  only:
+#    - main</code></pre>
+<h2 id="autores">Autores</h2>
+<p>-Rafael Leal Pardo -Manuel Coca Alba</p>
+<figure>
+<img src="./grafico.png" alt="My Image" />
+<figcaption aria-hidden="true">My Image</figcaption>
+</figure>
