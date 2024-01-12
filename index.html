@@ -1,7 +1,17 @@
 <h1 id="ejercicio-3---gitlab-pipeline">Ejercicio 3 - GitLab
 Pipeline</h1>
-<h2 id="configuración-inicial">Configuración inicial</h2>
-<p>Se especifica la imagen de Docker que se utilizará para poder
+<p>Un pipeline en GitLab es un conjunto automatizado de procesos que se
+ejecutan en respuesta a cambios en el código fuente de un proyecto. Está
+definido en un archivo llamado .gitlab-ci.yml y consta de trabajos
+(jobs) que realizan tareas específicas, como construir, probar y
+desplegar una aplicación. Estos trabajos se organizan en etapas (stages)
+y se ejecutan en un entorno controlado por instancias llamadas runners.
+Los pipelines se activan mediante eventos como la creación de ramas, la
+apertura de solicitudes de fusión o la programación de ejecuciones
+periódicas. La configuración del pipeline y sus trabajos se define en el
+archivo YAML, permitiendo una automatización flexible y escalable del
+desarrollo, integración continua y despliegue continuo. ## Configuración
+inicial Se especifica la imagen de Docker que se utilizará para poder
 ejecutar el pipeline.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span><span class="kw">:</span><span class="at"> python:3.9 </span></span></code></pre></div>
